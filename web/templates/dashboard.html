@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Bottle Inspection{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+
+    <!-- Camera Preview -->
+    <div class="card card-wide" id="card-camera">
+        <h2>Camera</h2>
+        <div class="camera-preview">
+            <img id="camera-img" src="/api/camera/snapshot" alt="Camera preview">
+        </div>
+        <div class="camera-actions">
+            <button id="btn-inspect" onclick="triggerInspection()">Run Inspection</button>
+            <span id="inspect-status"></span>
+            <select id="camera-select" onchange="switchCamera(this.value)">
+                <option value="">Loading cameras...</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Scale -->
+    <div class="card" id="card-scale">
+        <h2>Scale</h2>
+        <div class="status-row">
+            <span>Connected:</span>
+            <span id="scale-connected" class="status-indicator">--</span>
+        </div>
+        <div class="data-row">
+            <span>Current Weight:</span>
+            <span id="scale-weight">-- g</span>
+        </div>
+        <div class="data-row">
+            <span>Tare Weight:</span>
+            <span id="scale-tare">-- g</span>
+        </div>
+    </div>
+
+    <!-- Last Inspection -->
+    <div class="card" id="card-inspection">
+        <h2>Last Inspection</h2>
+        <div class="data-row result-row">
+            <span>Result:</span>
+            <span id="inspection-result" class="result-badge">--</span>
+        </div>
+        <div class="data-row">
+            <span>Weight:</span>
+            <span id="inspection-weight">-- g</span>
+        </div>
+        <div class="data-row">
+            <span>Label Present:</span>
+            <span id="inspection-label">--</span>
+        </div>
+        <div class="data-row">
+            <span>Contamination:</span>
+            <span id="inspection-contamination">--</span>
+        </div>
+    </div>
+
+    <!-- Network -->
+    <div class="card" id="card-network">
+        <h2>Network</h2>
+        <div class="status-row">
+            <span>WiFi Connected:</span>
+            <span id="network-wifi" class="status-indicator">--</span>
+        </div>
+        <div class="data-row">
+            <span>SSID:</span>
+            <span id="network-ssid">--</span>
+        </div>
+        <div class="data-row">
+            <span>IP Address:</span>
+            <span id="network-ip">--</span>
+        </div>
+        <div class="status-row">
+            <span>Internet:</span>
+            <span id="network-internet" class="status-indicator">--</span>
+        </div>
+    </div>
+
+    <!-- SAP DM -->
+    <div class="card" id="card-sap-dm">
+        <h2>SAP DM (Data Collection)</h2>
+        <div class="status-row">
+            <span>Last Send:</span>
+            <span id="sap-dm-success" class="status-indicator">--</span>
+        </div>
+        <div class="data-row">
+            <span>Timestamp:</span>
+            <span id="sap-dm-timestamp">--</span>
+        </div>
+        <div class="data-row">
+            <span>Data:</span>
+            <span id="sap-dm-data" class="data-preview">--</span>
+        </div>
+    </div>
+
+    <!-- SAP APM -->
+    <div class="card" id="card-sap-apm">
+        <h2>SAP APM (Asset Performance)</h2>
+        <div class="status-row">
+            <span>Last Send:</span>
+            <span id="sap-apm-success" class="status-indicator">--</span>
+        </div>
+        <div class="data-row">
+            <span>Timestamp:</span>
+            <span id="sap-apm-timestamp">--</span>
+        </div>
+        <div class="data-row">
+            <span>Data:</span>
+            <span id="sap-apm-data" class="data-preview">--</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bottle Inspection{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">Bottle Inspection</a>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                {% if is_pi %}
+                <a href="/wifi">WiFi Setup</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <span>Bottle Inspection Demo v0.1.0</span>
+        <span id="connection-status" class="status-indicator">--</span>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

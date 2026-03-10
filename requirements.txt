@@ -1,0 +1,10 @@
+# Core
+requests>=2.31.0
+python-dotenv>=1.0.0
+flask>=3.0.0
+
+# Hardware (required on Raspberry Pi, optional for local development)
+pyserial>=3.5
+opencv-python>=4.8.0
+# picamera2>=0.3.12          # Pi only — install manually on Pi
+# RPi.GPIO>=0.7.0            # Pi only

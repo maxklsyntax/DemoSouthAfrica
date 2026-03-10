@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}WiFi Setup — Bottle Inspection{% endblock %}
+
+{% block content %}
+<div class="wifi-setup">
+    <h2>WiFi Configuration</h2>
+
+    <div class="card">
+        <div class="wifi-actions">
+            <button id="btn-scan" onclick="scanNetworks()">Scan for Networks</button>
+        </div>
+
+        <div id="wifi-status" class="wifi-status"></div>
+
+        <div id="network-list" class="network-list"></div>
+
+        <form id="wifi-form" onsubmit="connectWifi(event)" style="display: none;">
+            <div class="form-group">
+                <label for="ssid">Network:</label>
+                <input type="text" id="ssid" name="ssid" readonly>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter WiFi password">
+            </div>
+            <button type="submit" id="btn-connect">Connect</button>
+        </form>
+    </div>
+</div>
+
+<script>
+async function scanNetworks() {
+    const btn = document.getElementById('btn-scan');
+    const list = document.getElementById('network-list');
+    const status = document.getElementById('wifi-status');
+
+    btn.disabled = true;
+    btn.textContent = 'Scanning...';
+    status.textContent = '';
+    list.innerHTML = '';
+
+    try {
+        const res = await fetch('/api/network/scan');
+        const data = await res.json();
+
+        if (data.error) {
+            status.textContent = data.error;
+            return;
+        }
+
+        data.networks.forEach(net => {
+            const item = document.createElement('div');
+            item.className = 'network-item';
+            item.innerHTML = `
+                <span class="network-ssid">${net.ssid}</span>
+                <span class="network-signal">${net.signal}%</span>
+                <span class="network-security">${net.security}</span>
+            `;
+            item.onclick = () => selectNetwork(net.ssid);
+            list.appendChild(item);
+        });
+    } catch (e) {
+        status.textContent = 'Scan failed: ' + e.message;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Scan for Networks';
+    }
+}
+
+function selectNetwork(ssid) {
+    document.getElementById('ssid').value = ssid;
+    document.getElementById('wifi-form').style.display = 'block';
+    document.getElementById('password').focus();
+}
+
+async function connectWifi(event) {
+    event.preventDefault();
+    const ssid = document.getElementById('ssid').value;
+    const password = document.getElementById('password').value;
+    const status = document.getElementById('wifi-status');
+    const btn = document.getElementById('btn-connect');
+
+    btn.disabled = true;
+    btn.textContent = 'Connecting...';
+    status.textContent = `Connecting to "${ssid}"...`;
+
+    try {
+        const res = await fetch('/api/network/connect', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ssid, password}),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            status.textContent = `Successfully connected to "${ssid}"!`;
+            status.className = 'wifi-status success';
+        } else {
+            status.textContent = `Failed to connect to "${ssid}". Please try again.`;
+            status.className = 'wifi-status error';
+        }
+    } catch (e) {
+        status.textContent = 'Connection failed: ' + e.message;
+        status.className = 'wifi-status error';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Connect';
+    }
+}
+</script>
+{% endblock %}
