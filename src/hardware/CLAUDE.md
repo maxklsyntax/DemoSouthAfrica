@@ -1,14 +1,15 @@
 # src/hardware/
 
-Hardware abstraction layer for scale, camera, and environment sensor.
+Hardware abstraction layer for scale and camera.
 
 ## Modules
 
 - **scale.py** — `Scale` class: KERN PCB 2000-1 via USB serial (/dev/ttyUSB0, 9600 baud, KCP protocol). Commands: 'w' (weight), 't' (tare).
 - **camera.py** — `Camera` class (picamera2 wrapper) + `detect_label()` and `detect_contamination()` pure functions that take a numpy frame.
-- **sensor.py** — `EnvironmentSensor` class: BME280 via I2C (adafruit library).
-- **mock.py** — `MockScale`, `MockCamera`, `MockSensor`: return random/demo data for local development.
+- **mock.py** — `MockScale`, `MockCamera`: return random/demo data. `WebcamCamera`: uses laptop webcam via OpenCV for real image capture with device selection support.
 
-## Mock Strategy
+## Mock / Fallback Strategy
 
-Pi-only libraries (picamera2, adafruit_bme280, board) are imported in try/except blocks. On non-Pi platforms, `main.py` uses mock classes from `mock.py` instead of the real hardware classes. Both real and mock classes share the same interface (connect, read, close, etc.).
+Pi-only libraries (picamera2) are imported in try/except blocks. On non-Pi platforms, `main.py` tries `WebcamCamera` first (real webcam via OpenCV), then falls back to `MockCamera`. Both real and mock classes share the same interface (start, capture, stop, is_available).
+
+Hardware is optional: the inspection engine accepts `None` for scale or camera and skips the corresponding checks.

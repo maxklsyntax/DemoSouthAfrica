@@ -17,10 +17,9 @@ SAP API integration modules.
 
 ## apm_client.py — SAP Asset Performance Management
 
-- `post_sensor_data(temperature, humidity, pressure) -> dict` — Indicator values
-- `post_contamination_alert(brightness_avg, contamination_ratio) -> dict` — Alert
+- `post_contamination_alert(brightness_avg, contamination_ratio) -> dict` — Alert only
 - Supports X-API-Key or OAuth2 (configured via `SAP_APM_AUTH_MODE` in .env)
-- POST to `/services/api/v1/indicator-values` and `/services/api/v1/alerts`
+- POST to `/services/api/v1/alerts`
 
 ## API Endpoint Note
 
