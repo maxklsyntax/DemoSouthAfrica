@@ -95,12 +95,12 @@ EOF
 
 cat > /etc/systemd/system/${UPDATE_TIMER_NAME}.timer << EOF
 [Unit]
-Description=Check for updates every 5 minutes
+Description=Check for updates every minute
 
 [Timer]
-OnBootSec=60
-OnUnitActiveSec=300
-AccuracySec=30
+OnBootSec=10
+OnUnitActiveSec=60
+AccuracySec=10
 
 [Install]
 WantedBy=timers.target
@@ -128,6 +128,6 @@ echo " App logs     : sudo journalctl -u $SERVICE_NAME -f"
 echo " Update timer : sudo systemctl status $UPDATE_TIMER_NAME.timer"
 echo " Dashboard    : http://$(hostname -I | awk '{print $1}'):8080"
 echo ""
-echo " The Pi will check GitHub for updates every 5 minutes."
+echo " The Pi will check GitHub for updates every minute."
 echo " If new code is found, it auto-installs deps and restarts."
 echo ""
