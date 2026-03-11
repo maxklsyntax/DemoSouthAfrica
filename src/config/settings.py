@@ -50,7 +50,7 @@ SAP_APM_BASE_URL = os.getenv("SAP_APM_BASE_URL", "")
 SAP_APM_CLIENT_ID = os.getenv("SAP_APM_CLIENT_ID", "")
 SAP_APM_CLIENT_SECRET = os.getenv("SAP_APM_CLIENT_SECRET", "")
 SAP_APM_TOKEN_URL = os.getenv("SAP_APM_TOKEN_URL", "")
-SAP_APM_EQUIPMENT_ID = os.getenv("SAP_APM_EQUIPMENT_ID", "")
+SAP_APM_EQUIPMENT_ID = "BOTTLE_INSP_01"
 
 # --- Web ---
 WEB_HOST = os.getenv("WEB_HOST", "0.0.0.0")
