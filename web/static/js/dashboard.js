@@ -113,31 +113,56 @@ async function switchCamera(index) {
     }
 }
 
-async function triggerInspection() {
-    const btn = document.getElementById("btn-inspect");
-    const status = document.getElementById("inspect-status");
-
+async function checkLabel() {
+    const btn = document.getElementById("btn-check-label");
+    const status = document.getElementById("check-status");
     btn.disabled = true;
-    btn.textContent = "Running...";
+    btn.textContent = "Checking...";
     if (status) status.textContent = "";
 
     try {
-        const res = await fetch("/api/inspection/trigger", { method: "POST" });
+        const res = await fetch("/api/check/label", { method: "POST" });
         const data = await res.json();
-        if (data.triggered) {
-            if (status) status.textContent = "Triggered!";
-            // Wait for inspection to complete, then refresh
-            setTimeout(() => {
-                refreshAll();
-                btn.disabled = false;
-                btn.textContent = "Run Inspection";
-                if (status) status.textContent = "";
-            }, 2000);
+        if (data.error) {
+            btn.textContent = "Error";
+            if (status) status.textContent = data.error;
+        } else {
+            const label = data.label_present ? "YES" : "NO";
+            const sent = data.sap && data.sap.success ? " > SAP OK" : " > SAP Failed";
+            if (status) status.textContent = "Label: " + label + sent;
+            btn.textContent = data.label_present ? "Label: YES" : "Label: NO";
         }
-    } catch {
-        if (status) status.textContent = "Error";
-        btn.disabled = false;
-        btn.textContent = "Run Inspection";
+        refreshAll();
+        setTimeout(() => { btn.textContent = "Check Label"; btn.disabled = false; if (status) status.textContent = ""; }, 3000);
+    } catch (e) {
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Check Label"; btn.disabled = false; }, 2000);
+    }
+}
+
+async function checkWeight() {
+    const btn = document.getElementById("btn-check-weight");
+    const status = document.getElementById("check-status");
+    btn.disabled = true;
+    btn.textContent = "Checking...";
+    if (status) status.textContent = "";
+
+    try {
+        const res = await fetch("/api/check/weight", { method: "POST" });
+        const data = await res.json();
+        if (data.error) {
+            btn.textContent = "Error";
+            if (status) status.textContent = data.error;
+        } else {
+            const sent = data.sap && data.sap.success ? " > SAP OK" : " > SAP Failed";
+            if (status) status.textContent = "Weight: " + data.weight + "g" + sent;
+            btn.textContent = data.weight + "g";
+        }
+        refreshAll();
+        setTimeout(() => { btn.textContent = "Check Weight"; btn.disabled = false; if (status) status.textContent = ""; }, 3000);
+    } catch (e) {
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Check Weight"; btn.disabled = false; }, 2000);
     }
 }
 
@@ -154,13 +179,7 @@ async function refreshScale() {
 
 async function refreshInspection() {
     const data = await fetchJson("/api/inspection/latest");
-    if (!data || !data.overall) return;
-
-    const resultEl = document.getElementById("inspection-result");
-    if (resultEl) {
-        resultEl.textContent = data.overall;
-        resultEl.className = "result-badge " + (data.overall === "GOOD" ? "good" : "bad");
-    }
+    if (!data) return;
 
     setText("inspection-weight", data.weight != null ? data.weight + " g" : "-- g");
     setText("inspection-label", data.label_present ? "Yes" : "No");

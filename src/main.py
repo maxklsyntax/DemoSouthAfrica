@@ -65,7 +65,8 @@ def _init_hardware():
 
     camera.start()
     app_state["camera_available"] = camera.is_available
-    app_state["_camera"] = camera  # Reference for snapshot API
+    app_state["_camera"] = camera  # Reference for snapshot/check API
+    app_state["_scale"] = scale    # Reference for weight check API
 
     return scale, camera
 

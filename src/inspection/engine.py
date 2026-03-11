@@ -98,15 +98,7 @@ def run_inspection(scale, camera, app_state: dict) -> dict:
         result["contamination_detected"],
     )
 
-    # Step 4: Send to SAP DM (separate calls per data type)
-    if result["label_present"] is not None:
-        label_dm = dm_client.post_label_result(result["label_present"])
-        app_state["sap_dm_label_last"] = label_dm
-
-    if result["weight"] is not None:
-        weight_dm = dm_client.post_weight_result(result["weight"])
-        app_state["sap_dm_weight_last"] = weight_dm
-
+    # SAP DM sending is done manually via dashboard buttons
     app_state["last_inspection"] = result
 
     return result

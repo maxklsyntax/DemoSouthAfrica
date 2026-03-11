@@ -12,8 +12,9 @@
             <img id="camera-img" src="/api/camera/snapshot" alt="Camera preview">
         </div>
         <div class="camera-actions">
-            <button id="btn-inspect" onclick="triggerInspection()">Run Inspection</button>
-            <span id="inspect-status"></span>
+            <button id="btn-check-label" onclick="checkLabel()">Check Label</button>
+            <button id="btn-check-weight" onclick="checkWeight()">Check Weight</button>
+            <span id="check-status"></span>
             <select id="camera-select" onchange="switchCamera(this.value)">
                 <option value="">Loading cameras...</option>
             </select>

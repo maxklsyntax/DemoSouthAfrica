@@ -118,6 +118,27 @@ main {
     color: var(--accent);
 }
 
+.sap-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.sap-actions button {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.sap-actions button:hover { opacity: 0.85; }
+.sap-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .card h2 {
     font-size: 1rem;
     font-weight: 600;

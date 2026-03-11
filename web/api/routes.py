@@ -112,11 +112,90 @@ def camera_select():
     })
 
 
+@api_bp.route("/check/label", methods=["POST"])
+def check_label():
+    """Capture frame, detect label, send result to SAP DM."""
+    import random
+    from src.config import settings
+    from src.hardware.camera import detect_label as _detect_label
+    from src.sap import dm_client
+
+    state = _state()
+    camera = state.get("_camera")
+    if camera is None or not camera.is_available:
+        return jsonify({"error": "Camera not available"}), 503
+
+    frame = camera.capture()
+    if frame is None:
+        return jsonify({"error": "Camera capture failed"}), 503
+
+    label_result = _detect_label(frame)
+    label_present = label_result["label_present"]
+
+    # Update last inspection
+    last = state.get("last_inspection", {})
+    last["label_present"] = label_present
+    last["details"] = last.get("details", {})
+    last["details"]["label"] = label_result
+    state["last_inspection"] = last
+
+    # Send to SAP DM
+    dm_result = dm_client.post_label_result(label_present)
+    state["sap_dm_label_last"] = dm_result
+
+    return jsonify({
+        "label_present": label_present,
+        "sap": dm_result,
+    })
+
+
+@api_bp.route("/check/weight", methods=["POST"])
+def check_weight():
+    """Read weight (or simulate), send result to SAP DM."""
+    import random
+    from src.config import settings
+    from src.sap import dm_client
+
+    state = _state()
+    scale = state.get("_scale")
+
+    if scale is not None and scale.is_connected:
+        weight = scale.read_stable_weight()
+        if weight is None:
+            return jsonify({"error": "Could not read stable weight"}), 503
+        weight = round(weight, 1)
+    else:
+        weight = round(random.uniform(settings.WEIGHT_MIN, settings.WEIGHT_MAX), 1)
+
+    weight_ok = settings.WEIGHT_MIN <= weight <= settings.WEIGHT_MAX
+
+    # Update last inspection
+    last = state.get("last_inspection", {})
+    last["weight"] = weight
+    last["weight_ok"] = weight_ok
+    state["last_inspection"] = last
+
+    # Send to SAP DM
+    dm_result = dm_client.post_weight_result(weight)
+    state["sap_dm_weight_last"] = dm_result
+
+    return jsonify({
+        "weight": weight,
+        "weight_ok": weight_ok,
+        "sap": dm_result,
+    })
+
+
 @api_bp.route("/sap/dm/status")
 def sap_dm_status():
     """Last SAP DM transmission status."""
     state = _state()
-    return jsonify(state.get("sap_dm_label_last", {}))
+    label = state.get("sap_dm_label_last", {})
+    weight = state.get("sap_dm_weight_last", {})
+    # Return the most recent one
+    if label.get("timestamp", "") >= weight.get("timestamp", ""):
+        return jsonify(label)
+    return jsonify(weight)
 
 
 @api_bp.route("/sap/apm/status")
