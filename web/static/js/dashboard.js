@@ -176,14 +176,6 @@ async function refreshSapDm() {
     setText("sap-dm-data", summarizeData(data.data));
 }
 
-async function refreshSapApm() {
-    const data = await fetchJson("/api/sap/apm/status");
-    if (!data) return;
-
-    setStatus("sap-apm-success", data.success, data.success ? "Success" : data.timestamp ? "Failed" : "--");
-    setText("sap-apm-timestamp", formatTimestamp(data.timestamp));
-    setText("sap-apm-data", summarizeData(data.data));
-}
 
 async function refreshNetwork() {
     const data = await fetchJson("/api/network");
@@ -206,7 +198,6 @@ async function refreshAll() {
         refreshScale(),
         refreshInspection(),
         refreshSapDm(),
-        refreshSapApm(),
         refreshNetwork(),
     ]);
 }

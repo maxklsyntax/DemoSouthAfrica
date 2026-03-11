@@ -1,6 +1,7 @@
 """Inspection engine — orchestrates a bottle inspection cycle."""
 
 import logging
+import random
 
 from src.config import settings
 from src.sap import dm_client, apm_client
@@ -27,7 +28,7 @@ def run_inspection(scale, camera, app_state: dict) -> dict:
         "details": {},
     }
 
-    # Step 1: Weight (if scale available)
+    # Step 1: Weight (real scale or simulated)
     if scale is not None and scale.is_connected:
         weight = scale.read_stable_weight()
         if weight is not None:
@@ -36,6 +37,12 @@ def run_inspection(scale, camera, app_state: dict) -> dict:
             logger.info("Weight: %.1f g — OK: %s", weight, result["weight_ok"])
         else:
             logger.error("Could not read stable weight")
+    else:
+        # No scale: simulate a realistic weight for demo purposes
+        weight = round(random.uniform(settings.WEIGHT_MIN, settings.WEIGHT_MAX), 1)
+        result["weight"] = weight
+        result["weight_ok"] = True
+        logger.info("Weight (simulated): %.1f g", weight)
 
     # Step 2: Camera (if available)
     if camera is not None and camera.is_available:

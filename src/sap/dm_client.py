@@ -78,22 +78,13 @@ def post_label_result(label_ok: bool) -> dict:
 
 
 def post_weight_result(weight: float) -> dict:
-    """Send weight measurement to SAP DM (separate Production Process).
-
-    TODO: configure SAP_DM_WEIGHT_PROCESS_KEY once the weight
-    Data Collection Group and Production Process are set up in SAP DM.
-    """
-    process_key = getattr(settings, "SAP_DM_WEIGHT_PROCESS_KEY", "")
-    if not process_key:
-        logger.warning("Weight Production Process not configured, skipping SAP DM")
-        return {"success": False, "data": None}
-
+    """Send weight measurement to SAP DM via VI_WEIGHT_MEASUREMENT (same PP as label)."""
     data = [
         {
             "comment": "",
             "parameterName": "WEIGHT",
-            "dcGroup": "WEIGHT_MEASUREMENT",
+            "dcGroup": "VI_WEIGHT_MEASUREMENT",
             "parameterValue": str(weight),
         }
     ]
-    return _start_production_process(process_key, data)
+    return _start_production_process(settings.SAP_DM_LABEL_PROCESS_KEY, data)
