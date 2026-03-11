@@ -181,9 +181,16 @@ async function refreshInspection() {
     const data = await fetchJson("/api/inspection/latest");
     if (!data) return;
 
+    const resultEl = document.getElementById("inspection-result");
+    if (resultEl && data.label_present != null) {
+        const ok = data.label_present && data.weight_ok !== false;
+        resultEl.textContent = ok ? "GOOD" : "BAD";
+        resultEl.className = "result-badge " + (ok ? "good" : "bad");
+    }
+
     setText("inspection-weight", data.weight != null ? data.weight + " g" : "-- g");
-    setText("inspection-label", data.label_present ? "Yes" : "No");
-    setText("inspection-contamination", data.contamination_detected ? "Yes" : "No");
+    setText("inspection-label", data.label_present != null ? (data.label_present ? "Yes" : "No") : "--");
+    setText("inspection-contamination", data.contamination_detected != null ? (data.contamination_detected ? "Yes" : "No") : "--");
 }
 
 async function refreshSapDm() {

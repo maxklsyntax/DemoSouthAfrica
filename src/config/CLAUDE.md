@@ -7,7 +7,7 @@ Central configuration module.
 - Loads `.env` from project root via `python-dotenv`
 - Hardware settings: serial port, baudrate
 - Inspection tolerances: weight range (150–260g), label thresholds, contamination thresholds
-- SAP credentials via `os.getenv()`: DM (OAuth2) and APM (API key or OAuth2)
+- SAP credentials via `os.getenv()`: DM (OAuth2)
 - Timing: poll interval, stabilization delay
 - Web server: host, port
 - AP mode: SSID, password

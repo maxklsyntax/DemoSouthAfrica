@@ -20,4 +20,4 @@ All imports use the `src.` prefix: `from src.config import settings`
 
 ## Shared State
 
-`main.py` owns the `app_state` dict which is passed to the Flask app and updated by the inspection loop and SAP clients. The web API reads from it. Camera object stored as `_camera` key for snapshot API.
+`main.py` owns the `app_state` dict which is passed to the Flask app and updated by the inspection loop. The web API reads from it. Hardware objects stored as `_camera` and `_scale` keys for direct access from API routes.

@@ -19,8 +19,9 @@ JSON REST API:
 | `/api/camera/snapshot` | JPEG snapshot from active camera |
 | `/api/camera/list` | List available cameras |
 | `/api/camera/select` (POST) | Switch active camera |
+| `/api/check/label` (POST) | Capture + detect label + send to SAP DM |
+| `/api/check/weight` (POST) | Read/simulate weight + send to SAP DM |
 | `/api/sap/dm/status` | Last SAP DM transmission |
-| `/api/sap/apm/status` | Last SAP APM transmission |
 | `/api/network` | WiFi/internet status |
 | `/api/network/scan` | Scan WiFi (Pi only) |
 | `/api/network/connect` (POST) | Connect to WiFi (Pi only) |
@@ -28,10 +29,10 @@ JSON REST API:
 ## Templates
 
 - `base.html` — Layout with nav (dashboard + wifi link if Pi)
-- `dashboard.html` — Card grid: camera (full-width with preview + selector), scale, inspection, network, SAP DM, SAP APM
+- `dashboard.html` — Card grid: camera (full-width with preview + selector), scale, inspection, network, SAP DM
 - `wifi.html` — Scan, select, connect (Pi only)
 
 ## Static Assets
 
 - `css/style.css` — Card-based responsive layout with camera preview styles
-- `js/dashboard.js` — Camera preview (1fps), data polling (3s), inspection trigger, camera selector
+- `js/dashboard.js` — Camera preview (1fps), data polling (3s), check label/weight buttons, camera selector

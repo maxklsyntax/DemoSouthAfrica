@@ -28,8 +28,9 @@ app_state = {
     "current_weight": None,
     "tare_weight": None,
     "last_inspection": {},
-    "sap_dm_last": {"timestamp": None, "data": None, "success": None},
-    "sap_apm_last": {"timestamp": None, "data": None, "success": None},
+    "sap_dm_label_last": {},
+    "sap_dm_weight_last": {},
+    "sap_apm_last": {},
     "network": {"connected": False, "ssid": None, "ip": None, "internet": False},
 }
 
@@ -154,7 +155,7 @@ def _update_network_status():
 
 def main():
     """Main entry point."""
-    logger.info("=== Bottle Inspection System v0.1.0 ===")
+    logger.info("=== Bottle Inspection System v0.2.0 ===")
     logger.info("Platform: %s", "Raspberry Pi" if IS_RASPBERRY_PI else "Local Dev")
 
     # Step 1: Check WiFi / AP mode

@@ -1,31 +1,31 @@
 # Bottle Inspection Demo — Raspberry Pi
 
-## Projektübersicht
+## Overview
 
-Demo-System zur automatischen Qualitätskontrolle von kleinen 0,1L Glasflaschen.
-Das System prüft ob ein Label auf der Flasche vorhanden ist (Kamera), misst das Gewicht (Waage) und erkennt Kontamination (Helligkeitsanalyse). Ergebnisse werden an SAP DM und SAP APM gesendet.
+Demo system for automated quality inspection of small 0.1L glass bottles.
+The system checks label presence (camera), measures weight (scale), and detects contamination (brightness analysis). Label and weight results are sent to SAP Digital Manufacturing (DM) via the Production Process API. Includes a live web dashboard with camera preview and WiFi AP mode for field setup.
 
-Läuft auf dem Raspberry Pi 4 **und** als Plan B auf einem Laptop mit Webcam.
+Runs on Raspberry Pi 4 **and** as Plan B on a laptop with webcam.
 
 ---
 
 ## Hardware
 
-| Komponente | Modell | Anschluss |
+| Component | Model | Connection |
 |---|---|---|
-| Computer | Raspberry Pi 4 Model B (mind. 2GB) | — |
-| Waage | KERN PCB 2000-1 (2kg / 0,1g) | USB-B → USB-A |
-| Kamera | Raspberry Pi Camera Module 3 | CSI-Port |
-| Beleuchtung | Ringlicht (optional) | USB |
+| Computer | Raspberry Pi 4 Model B (min. 2GB) | — |
+| Scale | KERN PCB 2000-1 (2kg / 0.1g) | USB-B → USB-A |
+| Camera | Raspberry Pi Camera Module 3 | CSI port |
+| Lighting | Ring light (optional) | USB |
 | OS | Raspberry Pi OS (64-bit, Bookworm) | — |
 
-**Laptop-Betrieb:** Waage wird simuliert (Mock), Webcam (eingebaut oder USB) wird automatisch erkannt.
+**Laptop mode:** Scale is simulated (random weight 150–260g), webcam (built-in or USB) is auto-detected.
 
 ---
 
-## Schnellstart
+## Quick Start
 
-### Auf dem Raspberry Pi
+### On the Raspberry Pi
 
 ```bash
 git clone https://github.com/maxklsyntax/DemoSouthAfrica.git
@@ -34,9 +34,9 @@ chmod +x scripts/pi_setup.sh
 sudo ./scripts/pi_setup.sh
 ```
 
-Das Setup-Script installiert alles automatisch (venv, Dependencies, systemd Service, Auto-Update von GitHub jede Minute).
+The setup script installs everything automatically (venv, dependencies, systemd service, auto-update from GitHub every minute).
 
-### Auf dem Laptop (Plan B)
+### On a Laptop (Plan B)
 
 ```bash
 git clone https://github.com/maxklsyntax/DemoSouthAfrica.git
@@ -47,119 +47,118 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
-Dashboard öffnen: http://localhost:8080
+Open dashboard: http://localhost:8080
 
 ---
 
-## SAP-Zugangsdaten
+## SAP Credentials
 
 ```bash
 cp .env.example .env
-nano .env   # Zugangsdaten eintragen
+nano .env   # Fill in credentials
 ```
 
-Siehe `.env.example` für alle benötigten Variablen.
+See `.env.example` for all required variables.
 
 ---
 
-## Projektstruktur
+## Project Structure
 
 ```
 src/
-├── main.py              # Entry point: Plattform-Erkennung, Hardware-Init, Inspektions-Loop
-├── platform_detect.py   # Erkennt Pi vs Laptop, setzt Feature-Flags
-├── config/settings.py   # Alle Schwellwerte und Konfiguration, lädt .env
-├── hardware/            # Hardware-Abstraktion (Waage, Kamera + Mocks + Webcam)
-├── inspection/engine.py # Orchestriert den Inspektionszyklus
-├── sap/                 # SAP DM + APM API Clients mit OAuth2
-└── network/             # WiFi-Management + AP-Modus (nur Pi)
+├── main.py              # Entry point: platform detection, hardware init, inspection loop
+├── platform_detect.py   # Detects Pi vs laptop, sets feature flags
+├── config/settings.py   # All thresholds and configuration, loads .env
+├── hardware/            # Hardware abstraction (scale, camera + mocks + webcam)
+├── inspection/engine.py # Orchestrates the inspection cycle
+├── sap/                 # SAP DM API client with OAuth2 auth
+└── network/             # WiFi management + AP mode (Pi only)
 
 web/
-├── app.py               # Flask App Factory
-├── api/routes.py        # REST API für Dashboard
-├── templates/           # Jinja2 Templates (Dashboard + WiFi-Config)
-└── static/              # CSS + JS (Live-Vorschau, Auto-Refresh)
+├── app.py               # Flask app factory
+├── api/routes.py        # REST API for dashboard
+├── templates/           # Jinja2 templates (dashboard + WiFi config)
+└── static/              # CSS + JS (live preview, auto-refresh)
 
 scripts/
-├── pi_setup.sh          # Pi Ersteinrichtung (venv, systemd, Auto-Update)
-├── start.sh             # Manueller Start
-└── test_sap_connection.py  # SAP API Verbindungstest
+├── pi_setup.sh          # Pi provisioning (venv, systemd, auto-update)
+├── start.sh             # Manual start script
+└── test_sap_connection.py  # SAP API connectivity test
 
 docs/
-└── setup-guide.md/pdf   # Detaillierte Setup-Anleitung
+└── setup-guide.md/pdf   # Detailed step-by-step setup guide
 ```
 
 ---
 
-## Datenfluss
+## Data Flow
 
 ```
-Waage (Gewicht)     → Inspection Engine → SAP DM (Data Collection)
-Kamera (Label)      → Inspection Engine → SAP DM (Data Collection)
-Kamera (Helligkeit) → Inspection Engine → SAP APM (Contamination Alert)
-Alle Ergebnisse     → app_state         → Web Dashboard
+Camera (label bool)  → Check Label button  → SAP DM (Production Process)
+Scale  (weight)      → Check Weight button → SAP DM (Production Process)
+All results          → app_state           → Web Dashboard
 ```
 
 ---
 
-## Inspektions-Modi
+## Dashboard Controls
 
-| Modus | Beschreibung |
+| Button | Action |
 |---|---|
-| **Automatisch** | Flasche auf Waage (>50g) → Inspektion startet |
-| **Manuell** | Button "Run Inspection" im Dashboard |
-| **Nur Kamera** | Waage nicht angeschlossen → Label + Kontamination |
-| **Nur Waage** | Kamera nicht angeschlossen → Gewichtsprüfung |
+| **Check Label** | Captures image, detects label, sends result to SAP DM |
+| **Check Weight** | Reads weight (or simulates), sends result to SAP DM |
+
+Camera selector dropdown allows switching between available cameras.
 
 ---
 
-## WLAN-Konfiguration (Feld-Einsatz)
+## WiFi Configuration (Field Deployment)
 
-Wenn der Pi kein bekanntes WLAN findet, startet er automatisch einen Hotspot:
+When the Pi finds no known WiFi network, it automatically starts a hotspot:
 
-1. WLAN `BottleInspection-Setup` verbinden (Passwort: `inspect123`)
+1. Connect to WiFi `BottleInspection-Setup` (password: `inspect123`)
 2. Browser: `http://10.42.0.1:8080/wifi`
-3. WLAN auswählen + Passwort → Pi verbindet sich automatisch
+3. Select WiFi + enter password → Pi connects automatically
 
 ---
 
 ## Auto-Update
 
-Der Pi prüft **jede Minute** ob neue Commits auf GitHub sind.
-Bei Änderungen: `git pull` → Dependencies installieren → Service neu starten.
+The Pi checks **every minute** for new commits on GitHub.
+On changes: `git pull` → install dependencies → restart service.
 
-Workflow: Code auf Laptop ändern → `git push` → Pi aktualisiert sich automatisch.
+Workflow: Edit code on laptop → `git push` → Pi updates automatically.
 
 ---
 
-## Nützliche Befehle
+## Useful Commands
 
 ```bash
-# Service verwalten
+# Manage service
 sudo systemctl start|stop|restart|status bottle-inspection
 
-# Logs live anschauen
+# View live logs
 sudo journalctl -u bottle-inspection -f
 
-# Auto-Update Timer prüfen
+# Check auto-update timer
 sudo systemctl status bottle-inspection-update.timer
 
-# Manuelles Update
+# Manual update
 cd ~/DemoSouthAfrica && git pull origin main
 
-# SAP-Verbindung testen
+# Test SAP connection
 source .venv/bin/activate && python scripts/test_sap_connection.py
 
-# Waagen-Port prüfen
+# Check scale port
 ls /dev/ttyUSB*
 
-# Kamera testen (Pi)
+# Test camera (Pi)
 rpicam-still -o test.jpg
 ```
 
 ---
 
-## Dokumentation
+## Documentation
 
-- **[Setup-Anleitung (PDF)](docs/setup-guide.pdf)** — Detaillierte Schritt-für-Schritt Anleitung
-- **CLAUDE.md** — Technische Referenz für Entwicklung
+- **[Setup Guide (PDF)](docs/setup-guide.pdf)** — Detailed step-by-step guide
+- **CLAUDE.md** — Technical reference for development

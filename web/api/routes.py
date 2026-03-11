@@ -115,8 +115,6 @@ def camera_select():
 @api_bp.route("/check/label", methods=["POST"])
 def check_label():
     """Capture frame, detect label, send result to SAP DM."""
-    import random
-    from src.config import settings
     from src.hardware.camera import detect_label as _detect_label
     from src.sap import dm_client
 
