@@ -116,7 +116,7 @@ def camera_select():
 def sap_dm_status():
     """Last SAP DM transmission status."""
     state = _state()
-    return jsonify(state.get("sap_dm_last", {}))
+    return jsonify(state.get("sap_dm_label_last", {}))
 
 
 @api_bp.route("/sap/apm/status")

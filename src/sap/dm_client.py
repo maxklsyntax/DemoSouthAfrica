@@ -1,4 +1,6 @@
-"""SAP Digital Manufacturing (DM) client — posts inspection data to Data Collection API."""
+"""SAP Digital Manufacturing (DM) client — posts inspection data via Production Process API."""
+
+from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
@@ -24,45 +26,74 @@ def _get_headers() -> dict:
     }
 
 
-def post_inspection_result(
-    weight: float,
-    label_ok: bool,
-    contamination: bool,
-    overall: str,
-) -> dict:
+def _start_production_process(process_key: str, data: list[dict]) -> dict:
     """
-    Send complete inspection result to SAP DM Data Collection.
+    Start a Production Process in SAP DM with the given data entries.
 
-    Returns dict with: success (bool), timestamp (str), data (dict)
-    for display in the dashboard.
+    POST /pe/api/v1/process/processDefinitions/start?key=<key>&async=true
     """
     timestamp = datetime.now(timezone.utc).isoformat()
-    data = {
-        "plant": settings.SAP_DM_PLANT,
-        "timestamp": timestamp,
-        "parameterValues": [
-            {"name": "WEIGHT", "value": str(weight), "unit": "g"},
-            {"name": "LABEL_PRESENT", "value": str(label_ok)},
-            {"name": "CONTAMINATION_DETECTED", "value": str(contamination)},
-            {"name": "OVERALL_RESULT", "value": overall},
-        ],
-    }
-
     result = {"success": False, "timestamp": timestamp, "data": data}
 
     if not settings.SAP_DM_BASE_URL:
         logger.warning("SAP DM not configured, skipping")
         return result
 
-    url = f"{settings.SAP_DM_BASE_URL}/datacollection/v1/log"
+    url = (
+        f"{settings.SAP_DM_BASE_URL}"
+        f"/pe/api/v1/process/processDefinitions/start"
+        f"?key={process_key}&async=true"
+    )
+
+    body = {
+        "plant": settings.SAP_DM_PLANT,
+        "resource": settings.SAP_DM_RESOURCE,
+        "origin": "Machine",
+        "data": data,
+    }
 
     try:
         headers = _get_headers()
-        response = requests.post(url, json=data, headers=headers, timeout=10)
+        response = requests.post(url, json=body, headers=headers, timeout=10)
         response.raise_for_status()
         result["success"] = True
-        logger.info("Inspection result sent to SAP DM: %s", overall)
+        logger.info("Production Process started: %s", process_key)
     except requests.RequestException as e:
-        logger.error("Failed to send inspection result to SAP DM: %s", e)
+        logger.error("Failed to start Production Process %s: %s", process_key, e)
 
     return result
+
+
+def post_label_result(label_ok: bool) -> dict:
+    """Send label inspection result (bool) to SAP DM via VI_LABEL_INSPECTION."""
+    data = [
+        {
+            "comment": "",
+            "parameterName": "LABEL_PRESENT",
+            "dcGroup": "VI_LABEL_INSPECTION",
+            "parameterValue": str(label_ok),
+        }
+    ]
+    return _start_production_process(settings.SAP_DM_LABEL_PROCESS_KEY, data)
+
+
+def post_weight_result(weight: float) -> dict:
+    """Send weight measurement to SAP DM (separate Production Process).
+
+    TODO: configure SAP_DM_WEIGHT_PROCESS_KEY once the weight
+    Data Collection Group and Production Process are set up in SAP DM.
+    """
+    process_key = getattr(settings, "SAP_DM_WEIGHT_PROCESS_KEY", "")
+    if not process_key:
+        logger.warning("Weight Production Process not configured, skipping SAP DM")
+        return {"success": False, "data": None}
+
+    data = [
+        {
+            "comment": "",
+            "parameterName": "WEIGHT",
+            "dcGroup": "WEIGHT_MEASUREMENT",
+            "parameterValue": str(weight),
+        }
+    ]
+    return _start_production_process(process_key, data)

@@ -39,6 +39,11 @@ function formatTimestamp(ts) {
 
 function summarizeData(data) {
     if (!data) return "--";
+    if (Array.isArray(data)) {
+        return data
+            .map(p => `${p.parameterName}: ${p.parameterValue}`)
+            .join(", ");
+    }
     if (data.parameterValues) {
         return data.parameterValues
             .map(p => `${p.name}: ${p.value}`)

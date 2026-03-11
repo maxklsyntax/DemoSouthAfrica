@@ -21,14 +21,14 @@ WEIGHT_STABLE_READINGS = 3
 WEIGHT_STABLE_TOLERANCE = 0.5  # grams, max deviation for stable reading
 
 # --- Camera / Label Detection ---
-LABEL_EDGE_THRESHOLD = 50
-LABEL_MIN_CONTOUR_AREA = 5000
+LABEL_EDGE_THRESHOLD = 30
+LABEL_MIN_CONTOUR_AREA = 50
 LABEL_BRIGHTNESS_DIFF = 30
 
 # --- Contamination Detection ---
 CONTAMINATION_BRIGHTNESS_LOW = 40
 CONTAMINATION_BRIGHTNESS_HIGH = 240
-CONTAMINATION_PIXEL_RATIO = 0.05  # 5% of ROI pixels
+CONTAMINATION_PIXEL_RATIO = 0.25  # 25% of ROI pixels
 
 # --- Timing ---
 INSPECTION_LOOP_INTERVAL = 0.5   # seconds between scale polling
@@ -40,6 +40,8 @@ SAP_DM_CLIENT_SECRET = os.getenv("SAP_DM_CLIENT_SECRET", "")
 SAP_DM_TOKEN_URL = os.getenv("SAP_DM_TOKEN_URL", "")
 SAP_DM_BASE_URL = os.getenv("SAP_DM_BASE_URL", "")
 SAP_DM_PLANT = os.getenv("SAP_DM_PLANT", "")
+SAP_DM_RESOURCE = os.getenv("SAP_DM_RESOURCE", "")
+SAP_DM_LABEL_PROCESS_KEY = os.getenv("SAP_DM_LABEL_PROCESS_KEY", "")
 
 # --- SAP Asset Performance Management (APM) ---
 SAP_APM_AUTH_MODE = os.getenv("SAP_APM_AUTH_MODE", "apikey")  # "apikey" or "oauth2"

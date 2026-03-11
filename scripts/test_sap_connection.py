@@ -29,13 +29,11 @@ def test_dm():
         print(f"FAIL: Token request failed: {e}")
         return
 
-    result = dm_client.post_inspection_result(
-        weight=155.3,
-        label_ok=True,
-        contamination=False,
-        overall="GOOD",
-    )
-    print(f"Post inspection: {'OK' if result['success'] else 'FAIL'}")
+    print("\nTest: Label result (True) ...")
+    result = dm_client.post_label_result(label_ok=True)
+    print(f"Post label: {'OK' if result['success'] else 'FAIL'}")
+    if not result["success"]:
+        print(f"  Data: {result.get('data')}")
 
 
 def test_apm():
