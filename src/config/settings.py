@@ -22,7 +22,7 @@ WEIGHT_STABLE_TOLERANCE = 0.5  # grams, max deviation for stable reading
 
 # --- Camera / Label Detection ---
 LABEL_EDGE_THRESHOLD = 30
-LABEL_MIN_CONTOUR_AREA = 50
+LABEL_MIN_CONTOUR_AREA = 1000
 LABEL_BRIGHTNESS_DIFF = 30
 
 # --- Contamination Detection ---
