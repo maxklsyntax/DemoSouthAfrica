@@ -51,11 +51,11 @@ def run_inspection(scale, camera, app_state: dict) -> dict:
         frame = camera.capture()
         if frame is not None:
             label_result = detect_label(frame)
-            result["label_present"] = label_result["label_present"]
+            result["label_present"] = bool(label_result["label_present"])
             result["details"]["label"] = label_result
 
             contam_result = detect_contamination(frame)
-            result["contamination_detected"] = contam_result["contamination_detected"]
+            result["contamination_detected"] = bool(contam_result["contamination_detected"])
             result["details"]["contamination"] = contam_result
 
             # Send contamination alert to SAP APM

@@ -92,9 +92,9 @@ def detect_label(frame: np.ndarray) -> dict:
     )
 
     return {
-        "label_present": label_present,
-        "contour_area": max_area,
-        "edge_density": edge_density,
+        "label_present": bool(label_present),
+        "contour_area": float(max_area),
+        "edge_density": float(edge_density),
     }
 
 
@@ -128,7 +128,7 @@ def detect_contamination(frame: np.ndarray) -> dict:
     )
 
     return {
-        "contamination_detected": contamination,
-        "brightness_avg": brightness_avg,
-        "anomalous_ratio": anomalous_ratio,
+        "contamination_detected": bool(contamination),
+        "brightness_avg": float(brightness_avg),
+        "anomalous_ratio": float(anomalous_ratio),
     }

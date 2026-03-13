@@ -128,7 +128,7 @@ def check_label():
         return jsonify({"error": "Camera capture failed"}), 503
 
     label_result = _detect_label(frame)
-    label_present = label_result["label_present"]
+    label_present = bool(label_result["label_present"])
 
     # Update last inspection
     last = state.get("last_inspection", {})
