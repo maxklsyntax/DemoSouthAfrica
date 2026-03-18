@@ -253,6 +253,10 @@ def register_page_routes(app: Flask):
             is_pi=IS_RASPBERRY_PI,
         )
 
+    @app.route("/camera")
+    def camera_view():
+        return render_template("camera.html", is_pi=IS_RASPBERRY_PI)
+
     @app.route("/wifi")
     def wifi_config():
         if not IS_RASPBERRY_PI:

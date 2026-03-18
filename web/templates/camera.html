@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Camera — Bottle Inspection{% endblock %}
+
+{% block content %}
+<div class="camera-fullpage">
+    <img id="camera-preview" src="/api/camera/snapshot" alt="Camera preview">
+    <div class="camera-fullpage-actions">
+        <button class="btn btn-primary" onclick="checkLabel()">Check Label</button>
+        <button class="btn btn-primary" onclick="checkWeight()">Check Weight</button>
+    </div>
+    <div id="camera-result" class="camera-result" style="display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Camera preview refresh
+const preview = document.getElementById("camera-preview");
+setInterval(() => {
+    preview.src = "/api/camera/snapshot?" + Date.now();
+}, 1000);
+
+async function checkLabel() {
+    const resultEl = document.getElementById("camera-result");
+    resultEl.style.display = "block";
+    resultEl.textContent = "Checking label...";
+    resultEl.className = "camera-result pending";
+    try {
+        const res = await fetch("/api/check/label", { method: "POST" });
+        const data = await res.json();
+        if (data.error) {
+            resultEl.textContent = "Error: " + data.error;
+            resultEl.className = "camera-result bad";
+        } else {
+            const ok = data.label_present;
+            resultEl.textContent = "Label: " + (ok ? "YES" : "NO") +
+                (data.sap && data.sap.success ? " — sent to SAP DM" : " — SAP DM failed");
+            resultEl.className = "camera-result " + (ok ? "good" : "bad");
+        }
+    } catch (e) {
+        resultEl.textContent = "Error: " + e.message;
+        resultEl.className = "camera-result bad";
+    }
+}
+
+async function checkWeight() {
+    const resultEl = document.getElementById("camera-result");
+    resultEl.style.display = "block";
+    resultEl.textContent = "Checking weight...";
+    resultEl.className = "camera-result pending";
+    try {
+        const res = await fetch("/api/check/weight", { method: "POST" });
+        const data = await res.json();
+        if (data.error) {
+            resultEl.textContent = "Error: " + data.error;
+            resultEl.className = "camera-result bad";
+        } else {
+            const ok = data.weight_ok;
+            resultEl.textContent = "Weight: " + data.weight + " g " + (ok ? "OK" : "NOT OK") +
+                (data.sap && data.sap.success ? " — sent to SAP DM" : " — SAP DM failed");
+            resultEl.className = "camera-result " + (ok ? "good" : "bad");
+        }
+    } catch (e) {
+        resultEl.textContent = "Error: " + e.message;
+        resultEl.className = "camera-result bad";
+    }
+}
+</script>
+{% endblock %}
