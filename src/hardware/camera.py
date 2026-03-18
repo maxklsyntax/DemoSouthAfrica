@@ -25,10 +25,12 @@ class Camera:
         self.picam2 = None
 
     def start(self):
-        """Initialize and start the camera."""
+        """Initialize and start the camera with autofocus enabled."""
         if not PICAMERA_AVAILABLE:
             logger.warning("Camera not available (no picamera2)")
             return
+
+        from libcamera import controls
 
         self.picam2 = Picamera2()
         cam_config = self.picam2.create_still_configuration(
@@ -36,7 +38,17 @@ class Camera:
         )
         self.picam2.configure(cam_config)
         self.picam2.start()
-        logger.info("Camera started (picamera2)")
+
+        # Enable continuous autofocus (Camera Module 3 / IMX708)
+        try:
+            self.picam2.set_controls({
+                "AfMode": controls.AfModeEnum.Continuous,
+                "AfSpeed": controls.AfSpeedEnum.Fast,
+            })
+            logger.info("Camera started (picamera2) — continuous autofocus enabled")
+        except Exception as e:
+            logger.warning("Autofocus not available: %s", e)
+            logger.info("Camera started (picamera2)")
 
     @property
     def is_available(self) -> bool:
