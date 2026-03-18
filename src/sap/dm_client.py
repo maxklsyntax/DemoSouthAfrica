@@ -26,12 +26,14 @@ def _get_headers() -> dict:
     }
 
 
-def _start_production_process(process_key: str, data: list[dict]) -> dict:
+def _start_production_process(process_key: str, data: list[dict], resource: str = None) -> dict:
     """
     Start a Production Process in SAP DM with the given data entries.
 
     POST /pe/api/v1/process/processDefinitions/start?key=<key>&async=true
     """
+    if resource is None:
+        resource = settings.SAP_DM_RESOURCE
     timestamp = datetime.now(timezone.utc).isoformat()
     result = {"success": False, "timestamp": timestamp, "data": data}
 
@@ -47,7 +49,7 @@ def _start_production_process(process_key: str, data: list[dict]) -> dict:
 
     body = {
         "plant": settings.SAP_DM_PLANT,
-        "resource": settings.SAP_DM_RESOURCE,
+        "resource": resource,
         "origin": "Machine",
         "data": data,
     }
@@ -65,7 +67,7 @@ def _start_production_process(process_key: str, data: list[dict]) -> dict:
 
 
 def post_label_result(label_ok: bool) -> dict:
-    """Send label inspection result (bool) to SAP DM via VI_LABEL_INSPECTION."""
+    """Send label inspection result to SAP DM — posts to both QM and FILL workcenters."""
     data = [
         {
             "comment": "",
@@ -74,7 +76,15 @@ def post_label_result(label_ok: bool) -> dict:
             "parameterValue": str(label_ok),
         }
     ]
-    return _start_production_process(settings.SAP_DM_LABEL_PROCESS_KEY, data)
+    result_qm = _start_production_process(settings.SAP_DM_LABEL_PROCESS_KEY, data, resource="QM")
+    result_fill = _start_production_process(settings.SAP_DM_LABEL_PROCESS_KEY, data, resource="FILL")
+    # Return combined result — success only if both succeed
+    return {
+        "success": result_qm["success"] and result_fill["success"],
+        "timestamp": result_qm["timestamp"],
+        "data": data,
+        "details": {"QM": result_qm["success"], "FILL": result_fill["success"]},
+    }
 
 
 def post_weight_result(weight: float) -> dict:
